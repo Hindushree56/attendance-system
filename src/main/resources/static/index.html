@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Attendance System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="container">
+    <h1 class="text-4xl font-bold text-gray-800 text-center mb-10">Student Attendance System</h1>
+
+    <!-- Login Form -->
+    <div class="card" id="loginSection">
+        <h2 class="text-2xl font-semibold text-gray-700 mb-6">Login</h2>
+        <form id="loginForm" class="space-y-4">
+            <input type="text" id="loginRollNumber" placeholder="Enter roll number" required
+                   class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <input type="password" id="loginPassword" placeholder="Enter password" required
+                   class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <button type="submit"
+                    class="w-full bg-blue-600 text-white p-3 rounded-lg font-medium hover:bg-blue-700">
+                Login
+            </button>
+        </form>
+    </div>
+
+    <!-- Main Content (Hidden until login) -->
+    <div id="mainContent" class="hidden">
+        <div class="flex justify-end mb-4">
+            <button id="logoutButton"
+                    class="bg-red-600 text-white p-2 rounded-lg font-medium hover:bg-red-700">
+                Logout
+            </button>
+        </div>
+
+        <!-- Add User Form -->
+        <div class="card" id="addStudentCard">
+            <h2 class="text-2xl font-semibold text-gray-700 mb-6">Add User</h2>
+            <form id="studentForm" class="space-y-4">
+                <input type="text" id="name" placeholder="Enter name" required
+                       class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <input type="text" id="rollNumber" placeholder="Enter roll number" required
+                       class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <input type="password" id="password" placeholder="Enter password" required
+                       class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <select id="role" required
+                        class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="student">Student</option>
+                    <option value="admin">Admin</option>
+                    <option value="teacher">Teacher</option>
+                </select>
+                <button type="submit"
+                        class="w-full bg-blue-600 text-white p-3 rounded-lg font-medium hover:bg-blue-700">
+                    Add User
+                </button>
+            </form>
+        </div>
+
+        <!-- List of Users -->
+        <div class="card" id="studentListCard">
+            <h2 class="text-2xl font-semibold text-gray-700 mb-6">List of Users</h2>
+            <div class="mb-4">
+                <h3 class="text-xl font-semibold text-gray-600 mb-2">Students</h3>
+                <ul id="studentsList" class="student-list">
+                    <!-- List will be populated dynamically -->
+                </ul>
+            </div>
+            <div class="mb-4">
+                <h3 class="text-xl font-semibold text-gray-600 mb-2">Teachers</h3>
+                <ul id="teachersList" class="student-list">
+                    <!-- List will be populated dynamically -->
+                </ul>
+            </div>
+            <div>
+                <h3 class="text-xl font-semibold text-gray-600 mb-2">Admins</h3>
+                <ul id="adminsList" class="student-list">
+                    <!-- List will be populated dynamically -->
+                </ul>
+            </div>
+        </div>
+
+        <!-- Mark Attendance Form -->
+        <div class="card" id="markAttendanceCard">
+            <h2 class="text-2xl font-semibold text-gray-700 mb-6">Mark Attendance</h2>
+            <form id="attendanceForm" class="space-y-4">
+                <div>
+                    <label for="attendanceStudent" class="text-gray-600 block mb-1">Select Student:</label>
+                    <select id="attendanceStudent" required
+                            class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="">Select a student</option>
+                    </select>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <label for="attendanceDate" class="text-gray-600">Date:</label>
+                    <input type="date" id="attendanceDate" required
+                           class="p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div class="flex items-center space-x-4">
+                    <label for="attendanceStatus" class="text-gray-600">Present:</label>
+                    <input type="checkbox" id="attendanceStatus" class="h-5 w-5 text-blue-600">
+                </div>
+                <button type="submit"
+                        class="w-full bg-blue-600 text-white p-3 rounded-lg font-medium hover:bg-blue-700">
+                    Mark Attendance
+                </button>
+            </form>
+        </div>
+
+        <!-- Attendance Records -->
+        <div class="card" id="viewAttendanceCard">
+            <h2 class="text-2xl font-semibold text-gray-700 mb-6">Attendance Records</h2>
+            <select id="viewAttendanceStudent"
+                    class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 mb-4">
+                <option value="">Select a student</option>
+            </select>
+            <ul id="attendanceList" class="student-list">
+                <!-- List will be populated dynamically -->
+            </ul>
+        </div>
+
+        <!-- Absence Report -->
+        <div class="card" id="reportCard">
+            <h2 class="text-2xl font-semibold text-gray-700 mb-6">Absence Report</h2>
+            <form id="reportForm" class="space-y-4">
+                <div class="flex items-center space-x-4">
+                    <label for="reportDate" class="text-gray-600">Date:</label>
+                    <input type="date" id="reportDate" required
+                           class="p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <button type="submit"
+                        class="w-full bg-blue-600 text-white p-3 rounded-lg font-medium hover:bg-blue-700">
+                    Generate Report
+                </button>
+            </form>
+            <ul id="absentList" class="student-list mt-4">
+                <!-- List will be populated dynamically -->
+            </ul>
+        </div>
+    </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>

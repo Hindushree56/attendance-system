@@ -37,29 +37,38 @@ document.getElementById('loginForm').addEventListener('submit', function (event)
             const markAttendanceCard = document.getElementById('markAttendanceCard');
             const viewAttendanceCard = document.getElementById('viewAttendanceCard');
             const reportCard = document.getElementById('reportCard');
+            const attendanceDropdown = document.getElementById('attendanceDropdown');
+            const studentAttendanceFilter = document.getElementById('studentAttendanceFilter');
 
             if (loggedInRole === 'student') {
                 addStudentCard.classList.add('hidden');
                 studentListCard.classList.add('hidden');
                 markAttendanceCard.classList.add('hidden');
                 reportCard.classList.add('hidden');
-                // Show only attendance report for the logged-in student and pre-select
-                document.getElementById('viewAttendanceStudent').value = loggedInRollNumber;
-                viewAttendance(loggedInRollNumber);
                 viewAttendanceCard.classList.remove('hidden');
+                attendanceDropdown.classList.add('hidden');
+                studentAttendanceFilter.classList.remove('hidden');
+                viewAttendance(loggedInRollNumber);
             } else if (loggedInRole === 'teacher') {
                 addStudentCard.classList.remove('hidden');
                 markAttendanceCard.classList.remove('hidden');
                 studentListCard.classList.add('hidden');
-                reportCard.classList.add('hidden');
-                // Hide delete buttons
-                document.querySelectorAll('.delete-button').forEach(button => button.remove());
+                reportCard.classList.remove('hidden'); // Teachers can now view the absence report
+                viewAttendanceCard.classList.remove('hidden');
+                attendanceDropdown.classList.remove('hidden');
+                studentAttendanceFilter.classList.add('hidden');
+                const roleSelect = document.getElementById('role');
+                roleSelect.innerHTML = '<option value="student">Student</option>'; // Restrict to student role
+                roleSelect.disabled = true;
             } else if (loggedInRole === 'admin') {
                 addStudentCard.classList.remove('hidden');
                 studentListCard.classList.remove('hidden');
                 markAttendanceCard.classList.remove('hidden');
                 reportCard.classList.remove('hidden');
                 viewAttendanceCard.classList.remove('hidden');
+                attendanceDropdown.classList.remove('hidden');
+                studentAttendanceFilter.classList.add('hidden');
+                document.getElementById('role').disabled = false;
             }
 
             fetchStudents();
@@ -327,20 +336,10 @@ function populateStudentSelect() {
                         option.value = user.rollNumber;
                         option.textContent = `${user.name} (${user.rollNumber})`;
                         select.appendChild(option);
-                    }
-                    // Populate viewAttendanceStudent dropdown for both students and admins
-                    if (user.role === 'student') {
-                        if (loggedInRole === 'student' && user.rollNumber === loggedInRollNumber) {
-                            const option = document.createElement('option');
-                            option.value = user.rollNumber;
-                            option.textContent = `${user.name} (${user.rollNumber})`;
-                            viewSelect.appendChild(option);
-                        } else if (loggedInRole === 'admin') {
-                            const option = document.createElement('option');
-                            option.value = user.rollNumber;
-                            option.textContent = `${user.name} (${user.rollNumber})`;
-                            viewSelect.appendChild(option);
-                        }
+                        const viewOption = document.createElement('option');
+                        viewOption.value = user.rollNumber;
+                        viewOption.textContent = `${user.name} (${user.rollNumber})`;
+                        viewSelect.appendChild(viewOption);
                     }
                 });
             } else {
@@ -398,9 +397,9 @@ document.getElementById('attendanceForm').addEventListener('submit', function (e
 });
 
 // View attendance
-function viewAttendance(rollNumber) {
+function viewAttendance(rollNumber, filterDate = null) {
+    const attendanceList = document.getElementById('attendanceList');
     if (!rollNumber) {
-        const attendanceList = document.getElementById('attendanceList');
         attendanceList.innerHTML = '<li>Please select a student to view attendance</li>';
         return;
     }
@@ -413,21 +412,23 @@ function viewAttendance(rollNumber) {
         })
         .then(data => {
             console.log('Fetched attendance:', data);
-            const attendanceList = document.getElementById('attendanceList');
             attendanceList.innerHTML = '';
-            if (Array.isArray(data) && data.length > 0) {
-                data.forEach(record => {
+            let filteredData = data;
+            if (filterDate) {
+                filteredData = data.filter(record => record.date === filterDate);
+            }
+            if (Array.isArray(filteredData) && filteredData.length > 0) {
+                filteredData.forEach(record => {
                     const item = document.createElement('li');
                     item.textContent = `Date: ${record.date}, Status: ${record.present ? 'Present' : 'Absent'}`;
                     attendanceList.appendChild(item);
                 });
             } else {
-                attendanceList.innerHTML = '<li>No attendance records found</li>';
+                attendanceList.innerHTML = '<li>No attendance records found' + (filterDate ? ' for this date' : '') + '</li>';
             }
         })
         .catch(error => {
             console.error('Error fetching attendance:', error.message);
-            const attendanceList = document.getElementById('attendanceList');
             attendanceList.innerHTML = '<li>Error loading records: ' + error.message + '</li>';
         });
 }
@@ -437,6 +438,15 @@ document.getElementById('viewAttendanceStudent').addEventListener('change', func
         viewAttendance(loggedInRollNumber); // Restrict to own attendance
     } else {
         viewAttendance(this.value);
+    }
+});
+
+document.getElementById('filterAttendance').addEventListener('click', function () {
+    const date = document.getElementById('attendanceDateFilter').value;
+    if (date) {
+        viewAttendance(loggedInRollNumber, date);
+    } else {
+        viewAttendance(loggedInRollNumber);
     }
 });
 
